@@ -37,10 +37,10 @@ export const Projectile = ({
     ref.current.position.copy(position.current);
   });
 
-  useEffect(() => {
-    console.log(startPosition);
-    console.log(targetPosition);
-  }, []);
+  // useEffect(() => {
+  //   console.log(startPosition);
+  //   console.log(targetPosition);
+  // }, []);
 
   return (
     <mesh ref={ref} position={position.current} scale={[0.1, 0.1, 0.1]}>

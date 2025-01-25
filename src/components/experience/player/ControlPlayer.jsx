@@ -4,13 +4,17 @@ import { useControls } from "leva";
 import { useEffect, useRef, useState } from "react";
 import { Projectile } from "./Projectile";
 import { useAtom } from "jotai";
-import { newShootTarget } from "../Experience";
+import { newShootTarget, ShootPanel } from "./ShootPanel";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 
 export const ControlPlayer = () => {
   const [position, setPosition] = useState([0, 0, 0]);
   const [projectiles, setProjectiles] = useState([]);
   const [shootTarget] = useAtom(newShootTarget);
   const [newTriggerPosition] = useAtom(triggerPosition);
+  const [aspect, setAspect] = useState([]);
+  const playerPosition = useRef(new THREE.Vector3());
   const gunRef = useRef();
 
   const controls = useControls({
@@ -29,16 +33,10 @@ export const ControlPlayer = () => {
     const aspect = innerWidth / innerHeight;
 
     if (innerWidth > innerHeight) {
-      // controls.positionProportion[0] = -0.3;
-      // controls.positionProportion[1] = -0.3;
       controls.positionProportion[2] = -1;
-
       controls.rotation[1] = 3;
     } else {
-      // controls.positionProportion[0] = -0.6;
-      // controls.positionProportion[1] = -0.3;
       controls.positionProportion[2] = -3;
-
       controls.rotation[1] = 3;
     }
 
@@ -47,11 +45,12 @@ export const ControlPlayer = () => {
       controls.positionProportion[1] * aspect,
       controls.positionProportion[2] * aspect,
     ]);
-    // console.log(controls.positionProportion);
+    setAspect([innerWidth, innerHeight]);
   };
 
   const handleShoot = (targetPosition) => {
-    console.log(projectiles);
+    console.log(projectiles.length);
+    console.log("Shoot!");
 
     setProjectiles((prev) => [
       ...prev,
@@ -61,11 +60,14 @@ export const ControlPlayer = () => {
         targetPosition,
       },
     ]);
-
-    console.log("Shoot!");
   };
 
   useEffect(() => {
+    if (shootTarget.x === 0 && shootTarget.y === 0 && shootTarget.z === 0) {
+      return;
+    }
+
+    if (!shootTarget) return;
     handleShoot(shootTarget);
   }, [shootTarget]);
 
@@ -76,11 +78,17 @@ export const ControlPlayer = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [controls.positionProportion, controls.rotation]);
 
+  useFrame(() => {
+    playerPosition.current = gunRef.current.position;
+  });
+
   return (
     <group>
-      <PerspectiveCamera makeDefault position={[3, 3, 3]} ref={gunRef}>
+      <PerspectiveCamera makeDefault position={[0, 1, 8]} ref={gunRef}>
         <GunModel position={position} rotation={controls.rotation} />
       </PerspectiveCamera>
+
+      <ShootPanel aspect={aspect} lookAtPosition={playerPosition.current} />
 
       {projectiles.map((projectile) => (
         <Projectile

@@ -3,31 +3,11 @@ import { Canvas } from "@react-three/fiber";
 import { Floor, Lights } from "./enviroment";
 import { ControlPlayer } from "./player";
 import { Enemy } from "./enemies";
-import * as THREE from "three";
-import { atom, useAtom } from "jotai";
 import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
 
-export const newShootTarget = atom(new THREE.Vector3());
-
 export const Experience = () => {
-  const [shootTarget, setShootTarget] = useAtom(newShootTarget);
-
-  const handleCanvasClick = (event) => {
-    const { clientX, clientY } = event;
-    const targetPosition = [
-      (clientX / window.innerWidth) * 2 - 1,
-      -((clientY / window.innerHeight) * 2 - 1),
-      0,
-    ];
-
-    setShootTarget(new THREE.Vector3(...targetPosition));
-
-    // Call the shoot function from ControlPlayer
-    // You might need to use a ref or context to access the shoot function
-  };
-
   return (
-    <Canvas shadows onClick={handleCanvasClick}>
+    <Canvas shadows>
       <color attach="background" args={["#000"]} />
       <Physics debug>
         {/* <RigidBody type="dynamic" colliders={false} position={[0, 1, 0]}>
@@ -49,7 +29,7 @@ export const Experience = () => {
           <Floor />
         </RigidBody>
       </Physics>
-      <OrbitControls />
+      {/* <OrbitControls /> */}
       <Lights />
       <Stats />
     </Canvas>
