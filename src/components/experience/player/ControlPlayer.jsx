@@ -95,18 +95,18 @@ export const ControlPlayer = () => {
           key={projectile.id}
           startPosition={projectile.startPosition}
           targetPosition={projectile.targetPosition}
-          onHit={() => {
-            console.log("Hit!");
-            setProjectiles((prev) =>
-              prev.filter((p) => p.id !== projectile.id)
-            );
-          }}
-          onMiss={() => {
-            console.log("Miss!");
-            setProjectiles((prev) =>
-              prev.filter((p) => p.id !== projectile.id)
-            );
-          }}
+          // onHit={() => {
+          //   console.log("Hit!");
+          //   setProjectiles((prev) =>
+          //     prev.filter((p) => p.id !== projectile.id)
+          //   );
+          // }}
+          // onMiss={() => {
+          //   console.log("Miss!");
+          //   setProjectiles((prev) =>
+          //     prev.filter((p) => p.id !== projectile.id)
+          //   );
+          // }}
         />
       ))}
     </group>

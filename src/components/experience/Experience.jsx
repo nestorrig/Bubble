@@ -9,18 +9,23 @@ export const Experience = () => {
   return (
     <Canvas shadows>
       <color attach="background" args={["#000"]} />
-      <Physics debug>
+      <Physics>
         {/* <RigidBody type="dynamic" colliders={false} position={[0, 1, 0]}>
           <Box />
           <CuboidCollider args={[0.7, 0.35, 0.4]} />
         </RigidBody> */}
 
-        <RigidBody type="fixed" colliders={false} position={[0, -0.65, 0]}>
+        <RigidBody
+          type="fixed"
+          colliders={false}
+          position={[0, -0.65, 0]}
+          name="enemy"
+        >
           <Enemy position={[0, -0.35, 0]} />
           <CuboidCollider
             args={[0.7, 0.35, 0.4]}
-            sensor
-            onIntersectionEnter={(e) => console.log(e.rigidBodyObject)}
+            // sensor
+            // onIntersectionEnter={(e) => console.log(e.rigidBodyObject)}
           />
         </RigidBody>
         {/* <Bubble position={[0, 0, 0]} /> */}

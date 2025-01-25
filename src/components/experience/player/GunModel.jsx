@@ -26,16 +26,18 @@ export function GunModel(props) {
   }, []);
 
   useEffect(() => {
+    // console.log(shootTarget);
+
     if (!shootTarget) return;
     const worldPosition = trigger.current.getWorldPosition(new THREE.Vector3());
 
     setNewTriggerPosition(
       new THREE.Vector3(worldPosition.x, worldPosition.y, worldPosition.z)
     );
-    console.log(
-      trigger.current.getWorldPosition(new THREE.Vector3()),
-      newTriggerPosition
-    );
+    // console.log(
+    //   trigger.current.getWorldPosition(new THREE.Vector3()),
+    //   newTriggerPosition
+    // );
   }, [shootTarget]);
 
   useFrame(() => {
