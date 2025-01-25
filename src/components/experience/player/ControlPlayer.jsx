@@ -1,10 +1,17 @@
 import { PerspectiveCamera } from "@react-three/drei";
-import { GunModel } from "./GunModel";
+import { GunModel, triggerPosition } from "./GunModel";
 import { useControls } from "leva";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Projectile } from "./Projectile";
+import { useAtom } from "jotai";
+import { newShootTarget } from "../Experience";
 
 export const ControlPlayer = () => {
   const [position, setPosition] = useState([0, 0, 0]);
+  const [projectiles, setProjectiles] = useState([]);
+  const [shootTarget] = useAtom(newShootTarget);
+  const [newTriggerPosition] = useAtom(triggerPosition);
+  const gunRef = useRef();
 
   const controls = useControls({
     positionProportion: {
@@ -43,6 +50,25 @@ export const ControlPlayer = () => {
     // console.log(controls.positionProportion);
   };
 
+  const handleShoot = (targetPosition) => {
+    console.log(projectiles);
+
+    setProjectiles((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        startPosition: newTriggerPosition,
+        targetPosition,
+      },
+    ]);
+
+    console.log("Shoot!");
+  };
+
+  useEffect(() => {
+    handleShoot(shootTarget);
+  }, [shootTarget]);
+
   useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -51,8 +77,30 @@ export const ControlPlayer = () => {
   }, [controls.positionProportion, controls.rotation]);
 
   return (
-    <PerspectiveCamera makeDefault position={[3, 3, 3]}>
-      <GunModel position={position} rotation={controls.rotation} />
-    </PerspectiveCamera>
+    <group>
+      <PerspectiveCamera makeDefault position={[3, 3, 3]} ref={gunRef}>
+        <GunModel position={position} rotation={controls.rotation} />
+      </PerspectiveCamera>
+
+      {projectiles.map((projectile) => (
+        <Projectile
+          key={projectile.id}
+          startPosition={projectile.startPosition}
+          targetPosition={projectile.targetPosition}
+          onHit={() => {
+            console.log("Hit!");
+            setProjectiles((prev) =>
+              prev.filter((p) => p.id !== projectile.id)
+            );
+          }}
+          onMiss={() => {
+            console.log("Miss!");
+            setProjectiles((prev) =>
+              prev.filter((p) => p.id !== projectile.id)
+            );
+          }}
+        />
+      ))}
+    </group>
   );
 };

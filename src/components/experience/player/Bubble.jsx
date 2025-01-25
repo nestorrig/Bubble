@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 extend({ BubbleMaterial });
 
-export const Bubble = () => {
+export const Bubble = (props) => {
   const { bubbleColor, uNoiseColorMultiplier } = useControls({
     bubbleColor: "white",
     uNoiseColorMultiplier: {
@@ -23,7 +23,7 @@ export const Bubble = () => {
   });
 
   return (
-    <group>
+    <group {...props}>
       <mesh>
         <sphereGeometry args={[1, 32, 32]} />
         <bubbleMaterial
