@@ -28,7 +28,7 @@ export const Bubble = (props) => {
         <sphereGeometry args={[1, 32, 32]} />
         <bubbleMaterial
           ref={material}
-          uColor={new Color(bubbleColor)}
+          uColor={new Color(bubbleColor).multiplyScalar(8)}
           uNoiseColorMultiplier={uNoiseColorMultiplier}
           transparent
           side={2}

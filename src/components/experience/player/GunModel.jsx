@@ -23,6 +23,10 @@ export function GunModel(props) {
     setNewTriggerPosition(
       trigger.current.getWorldPosition(new THREE.Vector3())
     );
+    materials.mat5.color.multiplyScalar(10);
+    materials.mat5.toneMapped = false;
+    materials.mat24.color.multiplyScalar(5);
+    materials.mat24.toneMapped = false;
   }, []);
 
   useEffect(() => {

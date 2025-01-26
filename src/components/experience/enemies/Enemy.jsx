@@ -7,16 +7,25 @@ import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import { useAtom } from "jotai";
 import { intersectedObjectNames, objectHitted } from "../player/Projectile";
+import { gameStateUI } from "../../ui/UI";
 
 export const Enemy = ({ name = "enemy" }) => {
   const position = useMemo(() => {
-    return [THREE.MathUtils.randInt(-3, 3), -0.7, -15];
+    return [THREE.MathUtils.randInt(-5, 5), -0.7, -15];
   }, []);
   const group = useRef();
   const { scene, animations } = useGLTF("./models/enemies/Enemy.glb");
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes, materials } = useGraph(clone);
   const { actions } = useAnimations(animations, group);
+
+  useEffect(() => {
+    materials.Eye.color.multiplyScalar(8);
+    materials.Eye.toneMapped = false;
+  }, []);
+
+  // state for UI
+  const [gameState, setGameState] = useAtom(gameStateUI);
 
   const { animation } = useControls({
     animation: {
@@ -33,6 +42,13 @@ export const Enemy = ({ name = "enemy" }) => {
     if (actions[currentAnimation]) {
       actions[currentAnimation].reset().fadeIn(0.5).play();
     }
+    if (currentAnimation === "CharacterArmature|Shoot") {
+      setGameState((prev) => ({
+        ...prev,
+        life: prev.life - 0.1,
+      }));
+    }
+
     return () => {
       if (actions[currentAnimation]) {
         actions[currentAnimation].fadeOut(0.5);
@@ -49,9 +65,9 @@ export const Enemy = ({ name = "enemy" }) => {
   const rigidPosition = useRef(new THREE.Vector3(...position));
   const direction = useMemo(() => {
     return new THREE.Vector3()
-      .subVectors(new THREE.Vector3(0, -0.65, 0), rigidPosition.current)
+      .subVectors(new THREE.Vector3(0, -0.65, -2), rigidPosition.current)
       .normalize();
-  }, [new THREE.Vector3(0, -0.65, 0)]);
+  }, [new THREE.Vector3(0, -0.65, -2)]);
 
   const laps = useRef({
     idle: {
@@ -66,6 +82,10 @@ export const Enemy = ({ name = "enemy" }) => {
       name: "CharacterArmature|Run",
       speed: 0.05,
     },
+    shoot: {
+      name: "CharacterArmature|Shoot",
+      speed: 0,
+    },
   });
 
   const interval = () => {
@@ -78,6 +98,12 @@ export const Enemy = ({ name = "enemy" }) => {
     setCurrentAnimation(name);
     setSpeed(speed);
     timeoutRef.current = setTimeout(() => {
+      if (
+        rigidPosition.current.distanceTo(new THREE.Vector3(0, -0.65, 0)) < 7
+      ) {
+        setCurrentAnimation("CharacterArmature|Shoot");
+        return;
+      }
       if (!intersectedObjects.includes(name)) {
         interval();
       }
@@ -101,7 +127,7 @@ export const Enemy = ({ name = "enemy" }) => {
 
   const handleNewPosition = () => {
     rigidPosition.current = new THREE.Vector3(
-      THREE.MathUtils.randInt(-3, 3),
+      THREE.MathUtils.randInt(-5, 5),
       -0.7,
       -15
     );
@@ -115,7 +141,7 @@ export const Enemy = ({ name = "enemy" }) => {
 
   useFrame(() => {
     if (rigidBodyObject.current) {
-      if (rigidPosition.current.distanceTo(new THREE.Vector3(0, -0.65, 0)) < 4)
+      if (rigidPosition.current.distanceTo(new THREE.Vector3(0, -0.65, 0)) < 5)
         return;
       rigidPosition.current.add(direction.clone().multiplyScalar(speed));
 

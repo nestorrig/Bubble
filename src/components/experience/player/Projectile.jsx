@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Bubble } from "./Bubble";
 import { atom, useAtom } from "jotai";
+import { gameStateUI } from "../../ui/UI";
 
 export const intersectedObjectNames = atom([]);
 export const objectHitted = atom("");
@@ -26,7 +27,10 @@ export const Projectile = ({
   );
   const [hittedObject, setHittedObject] = useAtom(objectHitted);
   const [animationFinished, setAnimationFinished] = useState(false);
-  const speed = 0.2;
+  const speed = 0.5;
+
+  // atom for UI
+  const [_, setGameState] = useAtom(gameStateUI);
 
   const direction = useMemo(() => {
     return new THREE.Vector3()
@@ -42,6 +46,11 @@ export const Projectile = ({
     enemyRef.current = e.rigidBody;
 
     const tl = gsap.timeline();
+
+    setGameState((prev) => ({
+      ...prev,
+      score: prev.score + 10,
+    }));
 
     tl.to(meshRef.current.scale, {
       duration: 0.5,
