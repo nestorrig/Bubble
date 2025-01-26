@@ -20,8 +20,11 @@ export const Enemy = ({ name = "enemy" }) => {
   const { actions } = useAnimations(animations, group);
 
   useEffect(() => {
-    materials.Eye.color.multiplyScalar(8);
+    materials.Eye.color.multiplyScalar(2);
     materials.Eye.toneMapped = false;
+
+    console.log(materials.Eye.color);
+    
   }, []);
 
   // state for UI

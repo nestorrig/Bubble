@@ -8,20 +8,23 @@ import { atom, useAtom } from "jotai";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { lookAtPanel, newShootTarget } from "./ShootPanel";
+import { isMobile } from "react-device-detect";
 export const triggerPosition = atom();
 
-export function GunModel(props) {
+export function GunModel({ position, rotation = [0, 0, 0] }) {
   const { nodes, materials } = useGLTF("./models/gun/Gun.glb");
   const [newTriggerPosition, setNewTriggerPosition] = useAtom(triggerPosition);
   const [shootTarget] = useAtom(newShootTarget);
   const [lookAtPanelPosition] = useAtom(lookAtPanel);
+
+  // const initialLookAtMobile = useRef(new THREE.Vector3(0, 0, -8));
 
   const trigger = useRef();
   const gunRef = useRef();
 
   useEffect(() => {
     setNewTriggerPosition(
-      trigger.current.getWorldPosition(new THREE.Vector3())
+      trigger.current.getWorldPosition(new THREE.Vector3(0, 0, 15))
     );
     materials.mat5.color.multiplyScalar(10);
     materials.mat5.toneMapped = false;
@@ -30,26 +33,36 @@ export function GunModel(props) {
   }, []);
 
   useEffect(() => {
-    // console.log(shootTarget);
-
     if (!shootTarget) return;
     const worldPosition = trigger.current.getWorldPosition(new THREE.Vector3());
 
     setNewTriggerPosition(
       new THREE.Vector3(worldPosition.x, worldPosition.y, worldPosition.z)
     );
-    // console.log(
-    //   trigger.current.getWorldPosition(new THREE.Vector3()),
-    //   newTriggerPosition
-    // );
   }, [shootTarget]);
 
   useFrame(() => {
-    gunRef.current.lookAt(lookAtPanelPosition);
+    if (isMobile) {
+      gunRef.current.lookAt(
+        new THREE.Vector3(
+          THREE.MathUtils.lerp(gunRef.current.position.x, shootTarget.x, 0.01),
+          THREE.MathUtils.lerp(gunRef.current.position.y, shootTarget.y, 0.01),
+          THREE.MathUtils.lerp(gunRef.current.position.z, shootTarget.z, 0.01)
+        )
+      );
+    } else {
+      gunRef.current.lookAt(lookAtPanelPosition);
+    }
   });
 
   return (
-    <group {...props} dispose={null} ref={gunRef}>
+    <group
+      position={[position[0], position[1], isMobile ? -2 : position[2]]}
+      rotation={rotation}
+      dispose={null}
+      ref={gunRef}
+      // lookAt={lookAtPanelPosition}
+    >
       <mesh
         castShadow
         receiveShadow

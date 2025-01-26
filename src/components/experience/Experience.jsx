@@ -9,8 +9,9 @@ import { useControls } from "leva";
 import { gameStateUI } from "../ui/UI";
 import { useAtom } from "jotai";
 import { Suspense } from "react";
+import { isMobile } from "react-device-detect";
 
-const enemies = Array.from({ length: 3 }, () => ({}));
+const enemies = Array.from({ length: 8 }, () => ({}));
 
 export const Experience = () => {
   const { rendering } = useControls({
@@ -36,7 +37,6 @@ export const Experience = () => {
           </Suspense>
           <Floor />
         </Physics>
-        {/* <OrbitControls /> */}
         <Lights />
         <Stats />
       </Canvas>

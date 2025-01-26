@@ -3,6 +3,7 @@ import { atom, useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { gameStateUI } from "../../ui/UI";
+import { isMobile } from "react-device-detect";
 
 export const lookAtPanel = atom(new THREE.Vector3());
 export const newShootTarget = atom(new THREE.Vector3());
@@ -47,7 +48,8 @@ export const ShootPanel = ({ aspect, lookAtPosition }) => {
   }, [gameState.shootsAvailable]);
 
   useFrame(() => {
-    planeRef.current.lookAt(lookAtPosition);
+    // planeRef.current.lookAt(lookAtPosition);
+    // console.log(lookAtPosition);
   });
 
   return (
@@ -55,7 +57,7 @@ export const ShootPanel = ({ aspect, lookAtPosition }) => {
       position={[0, 0, -8]}
       ref={planeRef}
       scale={[0.016 * aspect[0], 0.016 * aspect[1], 1]}
-      onPointerMove={handlePointerMove}
+      onPointerMove={isMobile ? null : handlePointerMove}
       onClick={handleClick}
       visible={false}
     >

@@ -6,7 +6,7 @@ function App() {
   return (
     <>
       <Experience />
-      <UI />
+      {/* <UI /> */}
       <Leva hidden={true} />
     </>
   );

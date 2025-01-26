@@ -8,6 +8,7 @@ import { newShootTarget, ShootPanel } from "./ShootPanel";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { RigidBody } from "@react-three/rapier";
+import { DamageScreen } from "./DamageScreen";
 
 export const ControlPlayer = () => {
   const [position, setPosition] = useState([0, 0, 0]);
@@ -38,7 +39,9 @@ export const ControlPlayer = () => {
       controls.rotation[1] = 3;
     } else {
       controls.positionProportion[2] = -3;
-      controls.rotation[1] = 3;
+      controls.positionProportion[1] = -1.4;
+      controls.positionProportion[0] = 0;
+      controls.rotation[1] = 0;
     }
 
     setPosition([
@@ -47,12 +50,11 @@ export const ControlPlayer = () => {
       controls.positionProportion[2] * aspect,
     ]);
     setAspect([innerWidth, innerHeight]);
+
+    console.log(controls.rotation);
   };
 
   const handleShoot = (targetPosition) => {
-    console.log(projectiles.length);
-    console.log("Shoot!");
-
     setProjectiles((prev) => [
       ...prev,
       {
@@ -94,6 +96,8 @@ export const ControlPlayer = () => {
       </PerspectiveCamera>
 
       <ShootPanel aspect={aspect} lookAtPosition={playerPosition.current} />
+
+      <DamageScreen />
 
       {projectiles.map((projectile) => (
         <Projectile
