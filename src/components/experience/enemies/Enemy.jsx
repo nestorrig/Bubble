@@ -48,7 +48,7 @@ export const Enemy = ({ name = "enemy" }) => {
     if (currentAnimation === "CharacterArmature|Shoot") {
       setGameState((prev) => ({
         ...prev,
-        life: prev.life - 0.1,
+        life: prev.life - 0.5,
       }));
     }
 

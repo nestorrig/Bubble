@@ -40,7 +40,7 @@ export const Experience = () => {
         <Lights />
         <Stats />
       </Canvas>
-      <Loader />
+      <Loader className="z-50" />
     </>
   );
 };

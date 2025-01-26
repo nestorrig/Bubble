@@ -1,12 +1,13 @@
 import { Experience } from "@components/experience";
-import { UI } from "./components/ui";
+import { Audio, UI } from "./components/ui";
 import { Leva } from "leva";
 
 function App() {
   return (
     <>
       <Experience />
-      {/* <UI /> */}
+      <UI />
+      {/* <Audio /> */}
       <Leva hidden={true} />
     </>
   );

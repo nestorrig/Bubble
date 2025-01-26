@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { Bubble } from "./Bubble";
 import { atom, useAtom } from "jotai";
 import { gameStateUI } from "../../ui/UI";
+import { playAudio } from "../../ui/Audio";
 
 export const intersectedObjectNames = atom([]);
 export const objectHitted = atom("");
@@ -31,6 +32,7 @@ export const Projectile = ({
 
   // atom for UI
   const [_, setGameState] = useAtom(gameStateUI);
+  const [audioState, setAudioState] = useAtom(playAudio);
 
   const direction = useMemo(() => {
     return new THREE.Vector3()
@@ -50,6 +52,11 @@ export const Projectile = ({
     setGameState((prev) => ({
       ...prev,
       score: prev.score + 10,
+    }));
+
+    setAudioState((prev) => ({
+      ...prev,
+      bubblePop: prev.bubblePop + 1,
     }));
 
     tl.to(meshRef.current.scale, {

@@ -9,6 +9,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { RigidBody } from "@react-three/rapier";
 import { DamageScreen } from "./DamageScreen";
+import { playAudio } from "../../ui/Audio";
 
 export const ControlPlayer = () => {
   const [position, setPosition] = useState([0, 0, 0]);
@@ -18,6 +19,7 @@ export const ControlPlayer = () => {
   const [aspect, setAspect] = useState([]);
   const playerPosition = useRef(new THREE.Vector3());
   const gunRef = useRef();
+  const [audioState, setAudioState] = useAtom(playAudio);
 
   const controls = useControls({
     positionProportion: {
@@ -63,6 +65,10 @@ export const ControlPlayer = () => {
         targetPosition,
       },
     ]);
+    setAudioState((prev) => ({
+      ...prev,
+      bubbleShoot: prev.bubbleShoot + 1,
+    }));
   };
 
   useEffect(() => {
