@@ -1,9 +1,13 @@
 import { useFrame } from "@react-three/fiber";
-import { BallCollider, RigidBody } from "@react-three/rapier";
+import { BallCollider, RigidBody, useRapier } from "@react-three/rapier";
 import gsap from "gsap";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Bubble } from "./Bubble";
+import { atom, useAtom } from "jotai";
+
+export const intersectedObjectNames = atom([]);
+export const objectHitted = atom("");
 
 export const Projectile = ({
   startPosition = new THREE.Vector3(),
@@ -15,7 +19,13 @@ export const Projectile = ({
   const rigidRef = useRef();
   const enemyRef = useRef();
   const position = useRef(new THREE.Vector3(...startPosition));
+  const rotation = useRef(new THREE.Vector3());
   const [isIntersected, setIsIntersected] = useState(false);
+  const [intersectedObjects, setIntersectedObjects] = useAtom(
+    intersectedObjectNames
+  );
+  const [hittedObject, setHittedObject] = useAtom(objectHitted);
+  const [animationFinished, setAnimationFinished] = useState(false);
   const speed = 0.2;
 
   const direction = useMemo(() => {
@@ -25,10 +35,12 @@ export const Projectile = ({
   }, [targetPosition]);
 
   const handleIntersection = (e) => {
-    if (e.rigidBodyObject.name != "enemy") return;
+    if (!e.rigidBodyObject.name.includes("enemy")) return;
+    if (intersectedObjects.includes(e.rigidBodyObject.name)) return;
     setIsIntersected(true);
+    setIntersectedObjects((prev) => [...prev, e.rigidBodyObject.name]);
+    enemyRef.current = e.rigidBody;
 
-    enemyRef.current = e.rigidBodyObject.children[0];
     const tl = gsap.timeline();
 
     tl.to(meshRef.current.scale, {
@@ -49,15 +61,39 @@ export const Projectile = ({
         easeEach: "none",
         ease: "none",
       },
-      duration: 5,
+      duration: 3,
       ease: "none",
       onComplete: () => {
-        // funcion para desmontar projectil y enemigo
+        onHit();
+        setAnimationFinished(true);
+        setIntersectedObjects((prev) =>
+          prev.filter((name) => name !== e.rigidBodyObject.name)
+        );
+        setHittedObject(e.rigidBodyObject.name);
+        e.rigidBody.setRotation({
+          x: 0,
+          y: 0,
+          z: 0,
+          w: 1,
+        });
       },
     });
   };
 
-  useFrame(() => {
+  useEffect(() => {
+    const missTimeout = setTimeout(() => {
+      if (!isIntersected) {
+        onMiss();
+        setAnimationFinished(true);
+      }
+    }, 2500);
+
+    return () => clearTimeout(missTimeout);
+  }, [isIntersected, onMiss]);
+
+  useFrame(({ clock }) => {
+    if (animationFinished) return;
+
     if (rigidRef.current) {
       if (!isIntersected) {
         position.current.add(direction.clone().multiplyScalar(speed));
@@ -74,20 +110,22 @@ export const Projectile = ({
       const meshPosition = meshRef.current.getWorldPosition(
         new THREE.Vector3()
       );
+      rotation.current.y += 0.03;
+      rotation.current.z = Math.sin(rotation.current.y);
+      rotation.current.x = Math.cos(rotation.current.y);
 
-      enemyRef.current.position.set(
-        THREE.MathUtils.lerp(enemyRef.current.position.x, meshPosition.x, 0.5),
-        THREE.MathUtils.lerp(
-          enemyRef.current.position.y,
-          meshPosition.y + 0.55,
-          0.5
-        ),
-        THREE.MathUtils.lerp(enemyRef.current.position.z, meshPosition.z, 0.5)
-      );
+      enemyRef.current.setTranslation({
+        x: meshPosition.x,
+        y: meshPosition.y,
+        z: meshPosition.z,
+      });
 
-      enemyRef.current.rotation.y += 0.03;
-      enemyRef.current.rotation.z = Math.sin(enemyRef.current.rotation.y);
-      enemyRef.current.rotation.x = Math.cos(enemyRef.current.rotation.y);
+      enemyRef.current.setRotation({
+        w: rotation.current.x,
+        x: rotation.current.x,
+        y: rotation.current.y,
+        z: rotation.current.z,
+      });
     }
   });
 
@@ -97,17 +135,14 @@ export const Projectile = ({
   // }, []);
 
   return (
-    // <group ref={ref} position={position.current}>
     <RigidBody
-      type="dynamic" // dunciona el sensor pero se glitchea
-      // type="Fixed" // no funciona el sensor, pero es perfomante
-      // position={position.current}
+      type="dynamic"
       ref={rigidRef}
       colliders="ball"
       scale={[0.02, 0.02, 0.02]}
       onIntersectionEnter={handleIntersection}
       sensor
-      gravityScale={0} // esto elimina la gravedad y el glitch
+      gravityScale={0}
     >
       <group ref={meshRef}>
         <Bubble />

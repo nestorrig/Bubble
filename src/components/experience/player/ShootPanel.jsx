@@ -27,15 +27,15 @@ export const ShootPanel = ({ aspect, lookAtPosition }) => {
 
   return (
     <mesh
-      position={[0, 0, 0]}
+      position={[0, 0, -12]}
       ref={planeRef}
-      scale={[0.01 * aspect[0], 0.01 * aspect[1], 1]}
+      scale={[0.016 * aspect[0], 0.016 * aspect[1], 1]}
       onPointerMove={handlePointerMove}
       onClick={handleClick}
       visible={false}
     >
       <planeGeometry args={[1, 1]} />
-      <meshStandardMaterial color="red" />
+      <meshBasicMaterial color="red" opacity={0.3} transparent />
     </mesh>
   );
 };

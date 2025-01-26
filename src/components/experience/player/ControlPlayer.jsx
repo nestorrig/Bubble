@@ -7,6 +7,7 @@ import { useAtom } from "jotai";
 import { newShootTarget, ShootPanel } from "./ShootPanel";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { RigidBody } from "@react-three/rapier";
 
 export const ControlPlayer = () => {
   const [position, setPosition] = useState([0, 0, 0]);
@@ -78,13 +79,17 @@ export const ControlPlayer = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [controls.positionProportion, controls.rotation]);
 
+  useEffect(() => {
+    gunRef.current.lookAt(new THREE.Vector3(0, 0, -15));
+  }, []);
+
   useFrame(() => {
     playerPosition.current = gunRef.current.position;
   });
 
   return (
     <group>
-      <PerspectiveCamera makeDefault position={[0, 1, 8]} ref={gunRef}>
+      <PerspectiveCamera makeDefault position={[0, 0, 0]} ref={gunRef}>
         <GunModel position={position} rotation={controls.rotation} />
       </PerspectiveCamera>
 
@@ -95,18 +100,18 @@ export const ControlPlayer = () => {
           key={projectile.id}
           startPosition={projectile.startPosition}
           targetPosition={projectile.targetPosition}
-          // onHit={() => {
-          //   console.log("Hit!");
-          //   setProjectiles((prev) =>
-          //     prev.filter((p) => p.id !== projectile.id)
-          //   );
-          // }}
-          // onMiss={() => {
-          //   console.log("Miss!");
-          //   setProjectiles((prev) =>
-          //     prev.filter((p) => p.id !== projectile.id)
-          //   );
-          // }}
+          onHit={() => {
+            // console.log("Hit!");
+            setProjectiles((prev) =>
+              prev.filter((p) => p.id !== projectile.id)
+            );
+          }}
+          onMiss={() => {
+            // console.log("Miss!");
+            setProjectiles((prev) =>
+              prev.filter((p) => p.id !== projectile.id)
+            );
+          }}
         />
       ))}
     </group>

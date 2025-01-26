@@ -2,37 +2,23 @@ import { OrbitControls, Stats } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Floor, Lights } from "./enviroment";
 import { ControlPlayer } from "./player";
-import { Enemy } from "./enemies";
-import { CuboidCollider, Physics, RigidBody } from "@react-three/rapier";
+import { Physics } from "@react-three/rapier";
+import { MathUtils } from "three";
+import { Enemy } from "./enemies/Enemy";
+
+const enemies = Array.from({ length: 7 }, () => ({}));
 
 export const Experience = () => {
   return (
     <Canvas shadows>
-      <color attach="background" args={["#000"]} />
+      <color attach="background" args={["#1111ff"]} />
+      <fog attach="fog" args={["#1111ff", -5, 15]} />
       <Physics>
-        {/* <RigidBody type="dynamic" colliders={false} position={[0, 1, 0]}>
-          <Box />
-          <CuboidCollider args={[0.7, 0.35, 0.4]} />
-        </RigidBody> */}
-
-        <RigidBody
-          type="fixed"
-          colliders={false}
-          position={[0, -0.65, 0]}
-          name="enemy"
-        >
-          <Enemy position={[0, -0.35, 0]} />
-          <CuboidCollider
-            args={[0.7, 0.35, 0.4]}
-            // sensor
-            // onIntersectionEnter={(e) => console.log(e.rigidBodyObject)}
-          />
-        </RigidBody>
-        {/* <Bubble position={[0, 0, 0]} /> */}
+        {enemies.map((enemy, index) => (
+          <Enemy key={index} name={"enemy" + index} />
+        ))}
         <ControlPlayer />
-        <RigidBody type="fixed" position={[0, 0, 0]}>
-          <Floor />
-        </RigidBody>
+        <Floor />
       </Physics>
       {/* <OrbitControls /> */}
       <Lights />
